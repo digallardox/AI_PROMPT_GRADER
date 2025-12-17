@@ -1,11 +1,8 @@
 """Dependency injection for FastAPI routes."""
-from typing import Annotated, Optional
+from typing import Annotated
 from fastapi import Depends
 
 from app.config import Settings, get_settings
-
-# Global cache for singleton instances
-_ner_service_instance: Optional[object] = None
 
 
 def get_claude_service():
@@ -35,24 +32,18 @@ def get_prompt_service():
 
 def get_ner_service():
     """
-    Get or create a singleton NER service instance.
+    Create a fresh NER service instance (no caching).
 
-    The Flair NER model (~500MB) is loaded once at first request and cached
-    for all subsequent requests. This significantly improves performance:
-    - First request: ~10-15 seconds (model loads)
-    - Subsequent requests: <1 second (model already in memory)
+    Uses Claude API for entity extraction - no heavy model loading required.
+    Each request creates a new instance with fresh settings.
 
     Returns:
-        NERService: Singleton instance of NER service
+        NERService: New instance of NER service
     """
-    global _ner_service_instance
-
-    if _ner_service_instance is None:
-        # Import here to avoid circular dependencies
-        from app.services.ner_service import NERService
-        _ner_service_instance = NERService()
-
-    return _ner_service_instance
+    # Import here to avoid circular dependencies
+    from app.services.ner_service import NERService
+    settings = get_settings()
+    return NERService(settings)
 
 
 # Type aliases for cleaner route signatures

@@ -5,7 +5,3 @@ httpx<0.28  # Compatibility with anthropic SDK
 pyyaml==6.0.1
 python-dotenv==1.0.0
 pydantic-settings==2.1.0  # For BaseSettings configuration
-torch==2.9.1
-transformers[torch]==4.57.3
-flair==0.15.1
-spacy==3.8.11

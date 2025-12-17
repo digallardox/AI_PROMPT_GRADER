@@ -12,7 +12,7 @@ async def generate_tags(
     req: TagsRequest = Body(...),
 ):
     """
-    Extract named entities/tags from journal entry content using NER.
+    Extract named entities/tags from journal entry content using Claude API.
 
     Args:
         ner: NER service (injected)
@@ -21,7 +21,7 @@ async def generate_tags(
     Returns:
         TagsResponse: List of extracted named entities/tags
     """
-    # Extract tags using NER service
-    tags = ner.extract_tags(req.content)
+    # Extract tags using Claude-based NER service
+    tags = await ner.extract_tags(req.content)
 
     return TagsResponse(tags=tags)

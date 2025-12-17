@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     claude_max_tokens: int = 1000
     claude_temperature: float = 0.7
 
+    # NER (Named Entity Recognition) Configuration
+    ner_model: str = "claude-3-5-haiku-20241022"  # Cheaper, faster model for tag extraction
+    ner_max_tokens: int = 500  # Tags don't need many tokens
+    ner_temperature: float = 0.3  # Lower temperature for more consistent results
+
     # Content Limits
     max_entry_content_length: int = 10000
     max_chat_message_length: int = 5000
