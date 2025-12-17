@@ -1,60 +1,58 @@
 """Dependency injection for FastAPI routes."""
-from typing import Annotated
+from typing import Annotated, Optional
 from fastapi import Depends
 
 from app.config import Settings, get_settings
 
-
-# Global service instances (lazy initialization)
-_claude_client = None
-_prompt_service = None
-_ner_service = None
+# Global cache for singleton instances
+_ner_service_instance: Optional[object] = None
 
 
 def get_claude_service():
     """
-    Get or create Claude service instance (lazy initialization).
+    Create a fresh Claude service instance (no caching).
 
     Returns:
-        ClaudeService: Singleton instance of Claude service
+        ClaudeService: New instance of Claude service
     """
-    global _claude_client
-    if _claude_client is None:
-        # Import here to avoid circular dependencies
-        from app.services.claude_service import ClaudeService
-        settings = get_settings()
-        _claude_client = ClaudeService(settings)
-    return _claude_client
+    # Import here to avoid circular dependencies
+    from app.services.claude_service import ClaudeService
+    settings = get_settings()
+    return ClaudeService(settings)
 
 
 def get_prompt_service():
     """
-    Get or create Prompt service instance (lazy initialization).
+    Create a fresh Prompt service instance (no caching).
 
     Returns:
-        PromptService: Singleton instance of prompt service
+        PromptService: New instance of prompt service
     """
-    global _prompt_service
-    if _prompt_service is None:
-        # Import here to avoid circular dependencies
-        from app.services.prompt_service import PromptService
-        _prompt_service = PromptService()
-    return _prompt_service
+    # Import here to avoid circular dependencies
+    from app.services.prompt_service import PromptService
+    return PromptService()
 
 
 def get_ner_service():
     """
-    Get or create NER service instance (lazy initialization).
+    Get or create a singleton NER service instance.
+
+    The Flair NER model (~500MB) is loaded once at first request and cached
+    for all subsequent requests. This significantly improves performance:
+    - First request: ~10-15 seconds (model loads)
+    - Subsequent requests: <1 second (model already in memory)
 
     Returns:
         NERService: Singleton instance of NER service
     """
-    global _ner_service
-    if _ner_service is None:
+    global _ner_service_instance
+
+    if _ner_service_instance is None:
         # Import here to avoid circular dependencies
         from app.services.ner_service import NERService
-        _ner_service = NERService()
-    return _ner_service
+        _ner_service_instance = NERService()
+
+    return _ner_service_instance
 
 
 # Type aliases for cleaner route signatures

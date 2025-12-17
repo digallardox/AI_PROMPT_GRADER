@@ -1,9 +1,12 @@
 """Reflection generation endpoint."""
 import json
+import logging
 import re
 from fastapi import APIRouter
 from app.models import ReflectionRequest, ReflectionResponse
 from app.dependencies import ClaudeDep, PromptDep
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["reflection"])
 
@@ -75,9 +78,9 @@ async def generate_reflection(
     except (json.JSONDecodeError, KeyError) as e:
         # Fallback if Claude doesn't return valid JSON
         # Log the error for debugging
-        print(f"JSON parse error: {e}")
-        print(f"Raw response: {response[:200]}...")
-        print(f"Cleaned response: {clean_response[:200]}...")
+        logger.error(f"JSON parse error: {e}")
+        logger.error(f"Raw response: {response[:200]}...")
+        logger.error(f"Cleaned response: {clean_response[:200]}...")
         return ReflectionResponse(
             reflection=response[:500] if len(response) <= 500 else clean_response[:500],
             question="What else would you like to explore about this?"

@@ -235,6 +235,161 @@ The server is configured to allow all origins for local development. If you stil
 2. Verify you're using the correct URL in Flutter (http://localhost:8000)
 3. Check server logs for any errors
 
+## Deployment to Render
+
+This service is optimized for deployment to [Render](https://render.com) on their free tier.
+
+### Prerequisites
+
+1. **GitHub Repository**: Push your code to GitHub
+2. **Render Account**: Sign up at [render.com](https://render.com)
+3. **Anthropic API Key**: Get your key from [console.anthropic.com](https://console.anthropic.com/)
+
+### Deployment Steps
+
+#### 1. Push to GitHub
+
+```bash
+# Add remote (if not already added)
+git remote add origin git@github.com:YOUR_USERNAME/YOUR_REPO.git
+
+# Commit and push
+git add .
+git commit -m "Prepare for Render deployment"
+git push -u origin main
+```
+
+#### 2. Create New Web Service on Render
+
+1. Go to [Render Dashboard](https://dashboard.render.com/)
+2. Click **"New +"** → **"Web Service"**
+3. Connect your GitHub repository
+4. Select the `mvlt-ai-service` repository
+
+#### 3. Configure the Service
+
+**Basic Settings:**
+- **Name**: `mvlt-ai-service` (or your preferred name)
+- **Region**: Choose closest to your users
+- **Branch**: `main`
+- **Runtime**: `Python 3`
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+**Instance Type:**
+- Select **"Free"** tier
+
+#### 4. Set Environment Variables
+
+In the "Environment" section, add:
+
+| Key | Value | Notes |
+|-----|-------|-------|
+| `ANTHROPIC_API_KEY` | `sk-ant-...` | **Required** - Your Claude API key |
+| `CORS_ORIGINS` | `*` | Allow all origins (or specify your frontend URL) |
+| `CLAUDE_MODEL` | `claude-sonnet-4-5` | Optional - defaults to this |
+| `APP_DEBUG` | `false` | Disable debug mode in production |
+
+**Important**: Keep `ANTHROPIC_API_KEY` secret - don't expose it in logs!
+
+#### 5. Deploy
+
+1. Click **"Create Web Service"**
+2. Render will automatically:
+   - Clone your repository
+   - Install dependencies (~500MB for ML models)
+   - Start the service
+3. Wait 5-10 minutes for first deployment (downloading ML models)
+
+#### 6. Verify Deployment
+
+Once deployed, your service will be available at:
+```
+https://mvlt-ai-service.onrender.com
+```
+
+Test the health endpoint:
+```bash
+curl https://mvlt-ai-service.onrender.com/health
+```
+
+View API docs:
+```
+https://mvlt-ai-service.onrender.com/docs
+```
+
+### Render Configuration File
+
+This repository includes a `render.yaml` file for automatic configuration. Render will detect and use this file automatically.
+
+### Important Notes for Free Tier
+
+**Cold Starts:**
+- Free tier sleeps after 15 minutes of inactivity
+- First request after sleep takes ~30-60 seconds (loads 500MB NER model)
+- Subsequent requests are fast (<1 second)
+
+**Memory Limit:**
+- Free tier has 512MB RAM
+- NER service uses ~500MB for Flair model
+- If you hit memory limits, consider disabling the `/tags` endpoint
+
+**Build Time:**
+- Initial deploy: ~5-10 minutes (downloads PyTorch, Transformers, Flair)
+- Rebuilds: ~3-5 minutes (cached dependencies)
+
+**Bandwidth:**
+- 100GB/month outbound bandwidth
+- Sufficient for low-traffic production use
+
+### Monitoring
+
+1. **Logs**: View real-time logs in Render Dashboard
+2. **Health Check**: Render automatically monitors `/health` endpoint
+3. **Metrics**: Basic metrics available in dashboard
+
+### Updating Your Deployment
+
+Render automatically redeploys when you push to `main`:
+
+```bash
+git add .
+git commit -m "Update API"
+git push origin main
+```
+
+### Troubleshooting Deployment
+
+**Build Fails:**
+- Check that `requirements.txt` is present
+- Verify Python version compatibility (uses 3.11 on Render)
+- Check build logs for specific errors
+
+**Service Won't Start:**
+- Verify `ANTHROPIC_API_KEY` is set correctly
+- Check start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Review logs for startup errors
+
+**Memory Issues:**
+- Free tier has 512MB RAM limit
+- NER model uses ~500MB
+- Consider disabling `/tags` endpoint if needed
+
+**Slow First Request:**
+- This is normal on free tier (cold start + model loading)
+- Consider upgrading to paid tier ($7/month) for always-on service
+
+### Alternative Deployment Options
+
+If Render doesn't meet your needs, this service can also deploy to:
+
+- **Fly.io**: Always-on free tier, requires Docker
+- **Railway**: $5/month credit, excellent DX
+- **Google Cloud Run**: Serverless, pay-per-use
+- **Heroku**: Paid tiers only (no free tier)
+
+See the included `Dockerfile` and `.dockerignore` for containerized deployments.
+
 ## Next Steps
 
 After confirming the server works:
@@ -242,8 +397,8 @@ After confirming the server works:
 1. **Add Prompt Template**: Copy reflection template from Flutter app to `app/templates/reflection.yaml`
 2. **Integrate with Flutter**: Use the external AI client in Flutter app
 3. **Add Error Handling**: Improve error messages and handling
-4. **Add Authentication**: Implement JWT validation when ready to deploy
-5. **Deploy**: Deploy to a hosting service (Railway, Fly.io, etc.)
+4. **Add Authentication**: Implement JWT validation when ready
+5. **Monitor Usage**: Keep an eye on Anthropic API usage and costs
 
 ## License
 

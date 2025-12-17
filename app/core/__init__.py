@@ -13,6 +13,7 @@ from app.core.exceptions import (
 from app.core.middleware import (
     RequestLoggingMiddleware,
     ErrorHandlingMiddleware,
+    NoCacheMiddleware,
 )
 
 __all__ = [
@@ -30,4 +31,5 @@ __all__ = [
     # Middleware
     "RequestLoggingMiddleware",
     "ErrorHandlingMiddleware",
+    "NoCacheMiddleware",
 ]

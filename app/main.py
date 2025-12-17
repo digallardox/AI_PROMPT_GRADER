@@ -32,6 +32,7 @@ from app.core.exceptions import (
 from app.core.middleware import (
     RequestLoggingMiddleware,
     ErrorHandlingMiddleware,
+    NoCacheMiddleware,
 )
 
 
@@ -64,6 +65,7 @@ def create_app() -> FastAPI:
     # Add custom middleware
     app.add_middleware(RequestLoggingMiddleware)
     app.add_middleware(ErrorHandlingMiddleware)
+    app.add_middleware(NoCacheMiddleware)
 
     # Register exception handlers
     app.add_exception_handler(AIServiceError, ai_service_exception_handler)

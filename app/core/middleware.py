@@ -80,3 +80,27 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             logger.exception(f"Unhandled exception: {str(e)}")
             # Re-raise to let exception handlers deal with it
             raise
+
+
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    """Middleware to add no-cache headers to all responses."""
+
+    async def dispatch(self, request: Request, call_next):
+        """
+        Add cache-control headers to prevent caching.
+
+        Args:
+            request: Incoming HTTP request
+            call_next: Next middleware/route handler
+
+        Returns:
+            Response with no-cache headers
+        """
+        response = await call_next(request)
+
+        # Add headers to prevent all forms of caching
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+
+        return response

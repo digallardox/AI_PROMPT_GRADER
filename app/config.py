@@ -1,6 +1,5 @@
 """Application configuration using Pydantic BaseSettings."""
 from pydantic_settings import BaseSettings
-from functools import lru_cache
 
 
 class Settings(BaseSettings):
@@ -43,7 +42,6 @@ class Settings(BaseSettings):
         case_sensitive = False
 
 
-@lru_cache()
 def get_settings() -> Settings:
-    """Get cached settings instance."""
+    """Get settings instance (no caching - creates fresh instance each call)."""
     return Settings()
