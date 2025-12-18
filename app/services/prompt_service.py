@@ -57,21 +57,36 @@ class PromptService:
         self,
         companion_name: str,
         traits: List[str],
-        entry_content: str
+        entry_content: str = ""
     ) -> str:
         """
-        Build a chat prompt with entry context.
+        Build a chat prompt with optional entry context.
 
         Args:
             companion_name: Name of the AI companion
             traits: List of personality traits
-            entry_content: Journal entry content for context
+            entry_content: Journal entry content for context (empty for general conversation)
 
         Returns:
             System prompt for chat conversation
         """
         personality = self._build_personality(traits)
 
+        # Global conversation (no entry context)
+        if not entry_content or entry_content.strip() == "":
+            return f"""You are {companion_name}, a {personality} AI companion and therapeutic listener.
+
+Your role is to provide a safe, supportive space for the user to explore their thoughts, feelings, and experiences. Act as a compassionate life coach and therapist who:
+
+- Listens deeply and validates emotions
+- Asks thoughtful, open-ended questions
+- Helps users gain clarity and insight
+- Supports personal growth without judgment
+- Responds with warmth and genuine curiosity
+
+Be present, empathetic, and create a judgment-free space for authentic conversation. Use personality traits: {', '.join(traits)}."""
+
+        # Entry-specific conversation (existing behavior)
         return f"""You are {companion_name}, a {personality} AI companion.
 
 The user wrote this journal entry:

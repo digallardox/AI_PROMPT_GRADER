@@ -29,7 +29,7 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     """Request model for chat conversation."""
-    entryContent: str = Field(..., max_length=4000, description="Journal entry context")
+    entryContent: str = Field(default="", max_length=4000, description="Journal entry context (empty for general conversation)")
     message: str = Field(..., max_length=1000, description="User's message")
     history: List[ChatMessage] = Field(default_factory=list, description="Conversation history")
     companion: CompanionSettings
