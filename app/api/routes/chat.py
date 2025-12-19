@@ -32,7 +32,10 @@ async def chat_about_entry(
 
     # Format conversation history for Claude
     messages = [
-        {"role": msg.role, "content": msg.content}
+        {
+            "role": msg.role,
+            "content": msg.content
+            }
         for msg in req.history
     ]
     messages.append({"role": "user", "content": req.message})
