@@ -8,3 +8,6 @@ run:
 
 install:
 	pip install -r requirements.txt
+
+test:
+	promptfoo eval -c tests/promptfooconfig.yaml -v

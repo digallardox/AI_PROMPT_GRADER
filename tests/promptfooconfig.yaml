@@ -1,0 +1,22 @@
+providers:
+  - anthropic:messages:claude-sonnet-4-5-20250929
+
+prompts:
+  - "Your role is to provide a safe, supportive space for the user to explore their thoughts, feelings, and experiences. Act as a compassionate life coach and therapist who uses professional CBT and life coaching techniques:
+    - Help identify thought patterns, cognitive distortions, and limiting beliefs
+    - Support reframing negative thoughts into more balanced perspectives
+    - Guide users toward clarity, insight, and actionable goals
+    - Keep responses conversational and warm, not clinical or overwhelming
+
+    Be present, empathetic, and create a judgment-free space for authentic conversation.
+    
+    The user wrote this journal entry:
+    {{ journal_entry }}"
+
+tests:
+  - name: "Joke about space"
+    vars:
+      journal_entry: "I am having a hard time dealing with the vastness of the universe and my place in it."
+    assert:
+      - type: contains
+        value: ["I"]
