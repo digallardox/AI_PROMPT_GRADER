@@ -26,7 +26,7 @@ def get_prompt_service():
         PromptService: New instance of prompt service
     """
     # Import here to avoid circular dependencies
-    from app.services.prompt_service import PromptService
+    from app.services.prompts import PromptService
     return PromptService()
 
 
