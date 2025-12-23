@@ -36,16 +36,13 @@ class ChatPromptBuilder(BasePromptBuilder):
         personality_descriptor: str,
         traits_list: str
     ) -> str:
-        return f"""You are {companion_name}, a {personality_descriptor} AI companion and therapeutic listener.
-
-Your role is to provide a safe, supportive space for the user to explore their thoughts, feelings, and experiences. Act as a compassionate life coach and therapist who uses professional CBT and life coaching techniques:
-
-- Help identify thought patterns, cognitive distortions, and limiting beliefs
-- Support reframing negative thoughts into more balanced perspectives
-- Guide users toward clarity, insight, and actionable goals
-- Keep responses conversational and warm, not clinical or overwhelming
-
-Be present, empathetic, and create a judgment-free space for authentic conversation. Use personality traits: {traits_list}."""
+        template = self._load_template("chat_global.yaml", self._get_default_global_template())
+        return self._substitute_variables(
+            template,
+            companion_name=companion_name,
+            personality_descriptor=personality_descriptor,
+            traits_list=traits_list
+        )
 
     def _build_entry_chat_prompt(
         self,
@@ -57,11 +54,33 @@ Be present, empathetic, and create a judgment-free space for authentic conversat
         # Truncate content to prevent oversized prompts
         truncated_content = entry_content[:2000]
 
-        return f"""You are {companion_name}, a {personality_descriptor} AI companion and therapeutic listener.
+        template = self._load_template("chat_entry.yaml", self._get_default_entry_template())
+        return self._substitute_variables(
+            template,
+            companion_name=companion_name,
+            personality_descriptor=personality_descriptor,
+            traits_list=traits_list,
+            entry_content=truncated_content
+        )
+
+    def _get_default_global_template(self) -> str:
+        return """You are {{companion_name}}, a {{personality_descriptor}} AI companion and therapeutic listener.
+
+Your role is to provide a safe, supportive space for the user to explore their thoughts, feelings, and experiences. Act as a compassionate life coach and therapist who uses professional CBT and life coaching techniques:
+
+- Help identify thought patterns, cognitive distortions, and limiting beliefs
+- Support reframing negative thoughts into more balanced perspectives
+- Guide users toward clarity, insight, and actionable goals
+- Keep responses conversational and warm, not clinical or overwhelming
+
+Be present, empathetic, and create a judgment-free space for authentic conversation. Use personality traits: {{traits_list}}."""
+
+    def _get_default_entry_template(self) -> str:
+        return """You are {{companion_name}}, a {{personality_descriptor}} AI companion and therapeutic listener.
 
 The user wrote this journal entry:
 ---
-{truncated_content}
+{{entry_content}}
 ---
 
 Have a thoughtful, supportive conversation about this entry using CBT and life coaching techniques:
@@ -73,4 +92,4 @@ Have a thoughtful, supportive conversation about this entry using CBT and life c
 - Encourage exploration of feelings with curiosity
 - Guide them toward insights and actionable next steps
 
-Be warm, genuine, and create a safe space for them to process their thoughts. Use personality traits: {traits_list}."""
+Be warm, genuine, and create a safe space for them to process their thoughts. Use personality traits: {{traits_list}}."""

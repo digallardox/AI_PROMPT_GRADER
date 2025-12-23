@@ -11,3 +11,4 @@ install:
 
 test:
 	promptfoo eval -c tests/promptfooconfig.yaml -v
+	promptfoo view --yes

@@ -10,10 +10,15 @@ class BasePromptBuilder:
         self.templates_dir = Path(__file__).parent / "templates"
 
     def _load_template(self, template_name: str, default_template: str) -> str:
-        template_path = self.templates_dir / template_name
+        # Try markdown first (.md extension)
+        md_path = self.templates_dir / template_name.replace('.yaml', '.md')
+        if md_path.exists():
+            return md_path.read_text()
 
-        if template_path.exists():
-            with open(template_path) as f:
+        # Fallback to YAML format
+        yaml_path = self.templates_dir / template_name
+        if yaml_path.exists():
+            with open(yaml_path) as f:
                 data = yaml.safe_load(f)
             return data.get('template', default_template)
 
