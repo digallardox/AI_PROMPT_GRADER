@@ -1,4 +1,6 @@
 """Application configuration using Pydantic BaseSettings."""
+from functools import lru_cache
+
 from pydantic_settings import BaseSettings
 
 
@@ -47,6 +49,12 @@ class Settings(BaseSettings):
         case_sensitive = False
 
 
+@lru_cache()
 def get_settings() -> Settings:
-    """Get settings instance (no caching - creates fresh instance each call)."""
+    """Get cached settings singleton.
+
+    Settings are cached using lru_cache to avoid recreating the Settings object
+    on every request. This follows FastAPI best practices since environment
+    variables don't change during the application lifecycle.
+    """
     return Settings()

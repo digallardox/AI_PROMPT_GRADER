@@ -35,61 +35,48 @@ from app.core.middleware import (
 )
 
 
-def create_app() -> FastAPI:
-    """
-    Application factory for creating FastAPI instance.
+# Get settings (cached via lru_cache)
+settings = get_settings()
 
-    Returns:
-        FastAPI: Configured FastAPI application
-    """
-    settings = get_settings()
+# Initialize FastAPI app
+app = FastAPI(
+    title=settings.app_name,
+    description="AI service for MVLT journaling app - reflection, title generation, and chat",
+    version=settings.app_version,
+    debug=settings.app_debug,
+)
 
-    # Initialize FastAPI app
-    app = FastAPI(
-        title=settings.app_name,
-        description="AI service for MVLT journaling app - reflection, title generation, and chat",
-        version=settings.app_version,
-        debug=settings.app_debug,
-    )
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=settings.cors_credentials,
+    allow_methods=settings.cors_methods,
+    allow_headers=settings.cors_headers,
+)
 
-    # Add CORS middleware
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=settings.cors_credentials,
-        allow_methods=settings.cors_methods,
-        allow_headers=settings.cors_headers,
-    )
+# Add custom middleware
+app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(ErrorHandlingMiddleware)
+app.add_middleware(NoCacheMiddleware)
 
-    # Add custom middleware
-    app.add_middleware(RequestLoggingMiddleware)
-    app.add_middleware(ErrorHandlingMiddleware)
-    app.add_middleware(NoCacheMiddleware)
+# Register exception handlers
+app.add_exception_handler(AIServiceError, ai_service_exception_handler)
+app.add_exception_handler(APIError, anthropic_api_error_handler)
+app.add_exception_handler(APITimeoutError, anthropic_timeout_handler)
+app.add_exception_handler(RateLimitError, anthropic_rate_limit_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
-    # Register exception handlers
-    app.add_exception_handler(AIServiceError, ai_service_exception_handler)
-    app.add_exception_handler(APIError, anthropic_api_error_handler)
-    app.add_exception_handler(APITimeoutError, anthropic_timeout_handler)
-    app.add_exception_handler(RateLimitError, anthropic_rate_limit_handler)
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(Exception, generic_exception_handler)
-
-    # Include routers
-    app.include_router(health_router)
-    app.include_router(reflection_router)
-    app.include_router(title_router)
-    app.include_router(chat_router)
-    app.include_router(tags_router)
-
-    return app
-
-
-# Create app instance
-app = create_app()
+# Include routers
+app.include_router(health_router)
+app.include_router(reflection_router)
+app.include_router(title_router)
+app.include_router(chat_router)
+app.include_router(tags_router)
 
 
 if __name__ == "__main__":
-    settings = get_settings()
     uvicorn.run(
         "app.main:app",
         host=settings.host,

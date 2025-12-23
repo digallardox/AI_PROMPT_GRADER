@@ -1,4 +1,3 @@
-"""Health check endpoint."""
 from fastapi import APIRouter
 from app.dependencies import SettingsDep
 
