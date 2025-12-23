@@ -1,6 +1,7 @@
 """NER (Named Entity Recognition) service for tag extraction using Claude API."""
 import json
 import logging
+from pathlib import Path
 from typing import List
 from anthropic import AsyncAnthropic
 
@@ -32,8 +33,26 @@ class NERService:
         self.model = settings.ner_model
         self.max_tokens = settings.ner_max_tokens
         self.temperature = settings.ner_temperature
+        self.templates_dir = Path(__file__).parent / "prompts" / "templates"
 
         logger.info(f"NER service initialized with model: {self.model}")
+
+    def _load_prompt(self) -> str:
+        prompt_path = self.templates_dir / "ner.md"
+        if prompt_path.exists():
+            return prompt_path.read_text()
+
+        # Fallback to default prompt
+        return """You are a named entity recognition assistant. Extract all named entities from the user's journal entry, including:
+- People (names)
+- Places (cities, countries, locations)
+- Organizations (companies, institutions)
+- Dates and times (specific dates, events)
+- Significant events or activities
+
+Return ONLY a JSON array of entity strings. No duplicates. No explanation. Just the array.
+
+Example format: ["John Smith", "New York", "2024", "Coffee Shop"]"""
 
     async def extract_tags(self, content: str) -> List[str]:
         """
@@ -49,17 +68,8 @@ class NERService:
             Exception: If Claude API call or JSON parsing fails
         """
         try:
-            # Build prompt for entity extraction
-            system_prompt = """You are a named entity recognition assistant. Extract all named entities from the user's journal entry, including:
-- People (names)
-- Places (cities, countries, locations)
-- Organizations (companies, institutions)
-- Dates and times (specific dates, events)
-- Significant events or activities
-
-Return ONLY a JSON array of entity strings. No duplicates. No explanation. Just the array.
-
-Example format: ["John Smith", "New York", "2024", "Coffee Shop"]"""
+            # Load prompt from template
+            system_prompt = self._load_prompt()
 
             # Call Claude API
             response = await self.client.messages.create(
