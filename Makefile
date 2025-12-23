@@ -10,5 +10,5 @@ install:
 	pip install -r requirements.txt
 
 test:
-	promptfoo eval -c tests/promptfooconfig.yaml -v
-	promptfoo view --yes
+	promptfoo eval --no-cache --config=tests/promptfooconfig.yaml > /dev/null
+	promptfoo view --yes > /dev/null
