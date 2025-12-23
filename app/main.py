@@ -1,4 +1,3 @@
-"""FastAPI application for MVLT AI operations."""
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +8,7 @@ from anthropic import APIError, APITimeoutError, RateLimitError
 from app.config import get_settings
 
 # Import routers
-from app.api.routes import (
+from app.routes import (
     health_router,
     reflection_router,
     title_router,

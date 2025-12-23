@@ -1,4 +1,3 @@
-"""Custom middleware for request logging and processing."""
 import time
 import logging
 from fastapi import Request

@@ -353,12 +353,12 @@ class NERService:
 
 ### 3.1 Route Organization
 
-**Location**: `app/api/routes/`
+**Location**: `app/routes/`
 
 Each route in its own file with consistent pattern:
 
 ```python
-# app/api/routes/{endpoint}.py
+# app/routes/{endpoint}.py
 from fastapi import APIRouter
 
 router = APIRouter(tags=["tag_name"])
@@ -369,10 +369,10 @@ async def endpoint_handler(req: RequestModel, dep: DepType):
     return ResponseModel(...)
 ```
 
-All routers exported and registered in `app/api/routes/__init__.py`:
+All routers exported and registered in `app/routes/__init__.py`:
 ```python
-from app.api.routes.health import router as health_router
-from app.api.routes.reflection import router as reflection_router
+from app.routes.health import router as health_router
+from app.routes.reflection import router as reflection_router
 # ...
 
 __all__ = [
@@ -606,14 +606,14 @@ make run      # Kill any existing process on 8765, start server
 
 ### 5.2 Adding New Endpoints
 
-1. **Create route file** in `app/api/routes/{endpoint}.py`:
+1. **Create route file** in `app/routes/{endpoint}.py`:
    ```python
    from fastapi import APIRouter
    from app.models import RequestModel, ResponseModel
    from app.dependencies import SomeDep
-   
+
    router = APIRouter(tags=["feature_name"])
-   
+
    @router.post("/endpoint", response_model=ResponseModel)
    async def handler(req: RequestModel, dep: SomeDep):
        return ResponseModel(...)
@@ -621,11 +621,11 @@ make run      # Kill any existing process on 8765, start server
 
 2. **Add models** to `app/models/requests.py` and `app/models/responses.py`
 
-3. **Export router** in `app/api/routes/__init__.py`
+3. **Export router** in `app/routes/__init__.py`
 
 4. **Register router** in `app/main.py`:
    ```python
-   from app.api.routes import new_router
+   from app.routes import new_router
    # ...
    app.include_router(new_router)
    ```
@@ -942,15 +942,13 @@ mvlt-ai-service/
 │   │   ├── exceptions.py         # Exception classes and handlers
 │   │   └── middleware.py         # Request logging, error handling, cache control
 │   │
-│   ├── api/                      # API endpoints
+│   ├── routes/                   # API endpoints
 │   │   ├── __init__.py
-│   │   └── routes/               # Endpoint route files
-│   │       ├── __init__.py
-│   │       ├── health.py         # GET /health
-│   │       ├── reflection.py     # POST /reflection
-│   │       ├── title.py          # POST /title
-│   │       ├── chat.py           # POST /chat
-│   │       └── tags.py           # POST /tags
+│   │   ├── health.py             # GET /health
+│   │   ├── reflection.py         # POST /reflection
+│   │   ├── title.py              # POST /title
+│   │   ├── chat.py               # POST /chat
+│   │   └── tags.py               # POST /tags
 │   │
 │   ├── services/                 # Business logic / external integrations
 │   │   ├── __init__.py
@@ -981,7 +979,7 @@ mvlt-ai-service/
 ### Task: Fix a Bug in Reflection Endpoint
 
 1. Check logs: Look at RequestLoggingMiddleware output in console
-2. Find route: `app/api/routes/reflection.py` - `generate_reflection()` function
+2. Find route: `app/routes/reflection.py` - `generate_reflection()` function
 3. Add debugging:
    ```python
    logger.error(f"Prompt built: {system_prompt[:100]}...")
