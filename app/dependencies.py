@@ -46,8 +46,25 @@ def get_ner_service():
     return NERService(settings)
 
 
+def get_refiner_service():
+    """
+    Create a fresh Refiner service instance (no caching).
+
+    Uses Claude Haiku for cost-effective message refinement.
+    Each request creates a new instance with fresh settings.
+
+    Returns:
+        RefinerService: New instance of refiner service
+    """
+    # Import here to avoid circular dependencies
+    from app.services.refiner_service import RefinerService
+    settings = get_settings()
+    return RefinerService(settings)
+
+
 # Type aliases for cleaner route signatures
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 ClaudeDep = Annotated[object, Depends(get_claude_service)]
 PromptDep = Annotated[object, Depends(get_prompt_service)]
 NERDep = Annotated[object, Depends(get_ner_service)]
+RefinerDep = Annotated[object, Depends(get_refiner_service)]

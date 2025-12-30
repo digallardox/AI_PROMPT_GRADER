@@ -14,6 +14,7 @@ from app.routes import (
     title_router,
     chat_router,
     tags_router,
+    refine_router,
 )
 
 # Import exception handlers
@@ -74,6 +75,7 @@ app.include_router(reflection_router)
 app.include_router(title_router)
 app.include_router(chat_router)
 app.include_router(tags_router)
+app.include_router(refine_router)
 
 
 if __name__ == "__main__":

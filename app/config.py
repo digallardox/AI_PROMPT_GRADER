@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     ner_max_tokens: int = 500  # Tags don't need many tokens
     ner_temperature: float = 0.3  # Lower temperature for more consistent results
 
+    # Refinement Configuration
+    enable_refinement: bool = True  # Feature flag to enable/disable message refinement
+    refinement_model: str = "claude-3-5-haiku-20241022"  # Use Haiku for cost-effective refinement
+    refinement_max_tokens: int = 800  # Sufficient for refined responses
+    refinement_temperature: float = 0.2  # Lower temperature for consistent quality improvements
+    refinement_timeout: float = 3.0  # Circuit breaker timeout in seconds
+
     # Content Limits
     max_entry_content_length: int = 10000
     max_chat_message_length: int = 5000

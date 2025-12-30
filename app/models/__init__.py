@@ -13,6 +13,12 @@ from app.models.responses import (
     ChatResponse,
     TagsResponse,
 )
+from app.models.refinement import (
+    RefinementCriteria,
+    RefineRequest,
+    RefineResponse,
+    EvaluationScores,
+)
 
 __all__ = [
     # Request models
@@ -22,9 +28,13 @@ __all__ = [
     "ChatMessage",
     "ChatRequest",
     "TagsRequest",
+    "RefineRequest",
+    "RefinementCriteria",
     # Response models
     "ReflectionResponse",
     "TitleResponse",
     "ChatResponse",
     "TagsResponse",
+    "RefineResponse",
+    "EvaluationScores",
 ]
